@@ -6,5 +6,5 @@ defineProps<{ torrent: Torrent; value: (t: Torrent) => number }>()
 </script>
 
 <template>
-  <td class="text-no-wrap">{{ dayjs(value(torrent) * 1000).fromNow() }}</td>
+  <span class="text-no-wrap">{{ dayjs(value(torrent) * 1000).fromNow() }}</span>
 </template>

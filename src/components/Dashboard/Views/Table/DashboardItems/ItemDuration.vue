@@ -14,8 +14,8 @@ const val = computed(() => props.value(props.torrent))
 </script>
 
 <template>
-  <td v-if="val > 0" class="text-no-wrap">
+  <span v-if="val > 0" class="text-no-wrap">
     {{ formatDuration(val, props.unit, durationFormat) }}
-  </td>
-  <td v-else class="text-no-wrap">{{ $t('common.NA') }}</td>
+  </span>
+  <span v-else class="text-no-wrap">{{ $t('common.NA') }}</span>
 </template>

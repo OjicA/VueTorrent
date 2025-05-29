@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DashboardPropertyType } from '@/constants/vuetorrent'
+import { DashboardProperty, DashboardPropertyType, TorrentProperty } from '@/constants/vuetorrent'
 import { comparators } from '@/helpers'
 import { useAppStore, useVueTorrentStore } from '@/stores'
 import { Torrent } from '@/types/vuetorrent'
@@ -15,7 +15,7 @@ import ItemRelativeTime from './DashboardItems/ItemRelativeTime.vue'
 import ItemSpeed from './DashboardItems/ItemSpeed.vue'
 import ItemText from './DashboardItems/ItemText.vue'
 
-defineProps<{ torrent: Torrent }>()
+const props = defineProps<{ property: DashboardProperty, torrent: Torrent }>()
 
 const appStore = useAppStore()
 const vuetorrentStore = useVueTorrentStore()
@@ -23,6 +23,8 @@ const vuetorrentStore = useVueTorrentStore()
 const torrentProperties = computed(() =>
   vuetorrentStore.tableProperties.filter(ppt => ppt.active && appStore.isFeatureAvailable(ppt.qbitVersion)).sort((a, b) => comparators.numeric.asc(a.order, b.order))
 )
+
+let torrentProperty: TorrentProperty | undefined = torrentProperties.value.find(ppt => ppt.sortKey === props.property)
 
 const getComponent = (type: DashboardPropertyType) => {
   switch (type) {
@@ -49,10 +51,11 @@ const getComponent = (type: DashboardPropertyType) => {
       return ItemText
   }
 }
+
+const component = torrentProperty ? getComponent(torrentProperty.type) : null
+
 </script>
 
 <template>
-  <template v-for="ppt in torrentProperties">
-    <component v-if="ppt.props" :is="getComponent(ppt.type)" :torrent="torrent" v-bind="ppt.props" :class="`torrent-${ppt.name}`" />
-  </template>
+  <component v-if="torrentProperty" :is="component" :torrent="torrent" v-bind="torrentProperty.props" :class="`torrent-${torrentProperty.name}`" />
 </template>

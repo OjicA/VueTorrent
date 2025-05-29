@@ -12,8 +12,8 @@ const val = computed(() => props.value(props.torrent))
 </script>
 
 <template>
-  <td v-if="val > 0" class="text-no-wrap">
+  <span v-if="val > 0" class="text-no-wrap">
     {{ formatTimeSec(val, dateFormat) }}
-  </td>
-  <td v-else class="text-no-wrap">{{ $t('dashboard.not_complete') }}</td>
+  </span>
+  <span v-else class="text-no-wrap">{{ $t('dashboard.not_complete') }}</span>
 </template>

@@ -9,9 +9,7 @@ const val = computed(() => props.value(props.torrent))
 </script>
 
 <template>
-  <td>
     <v-progress-linear :model-value="val" :max="1" :height="20" :color="color(torrent)" rounded="sm" style="width: 10em">
       {{ formatPercent(val) }}
     </v-progress-linear>
-  </td>
 </template>

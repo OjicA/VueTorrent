@@ -26,10 +26,8 @@ const shouldShowChip = computed(() => !(hideChipIfUnset.value && emptyValue.valu
 </script>
 
 <template>
-  <td>
     <div class="d-flex flex-row flex-gap-column-small" v-if="shouldShowChip">
       <ColoredChip v-if="emptyValue" :disabled="true" :default-color="color(torrent)" :value="$t(emptyValueKey)" size="small" />
       <ColoredChip v-else v-for="v in val" :disabled="!enableHashColor" :default-color="color(torrent)" :value="v" size="small" />
     </div>
-  </td>
 </template>

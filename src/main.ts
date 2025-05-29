@@ -2,6 +2,10 @@ import { createApp } from 'vue'
 import '@/styles/styles.scss'
 import App from './App.vue'
 
+import PrimeVue from 'primevue/config'
+import Aura from '@primeuix/themes/aura'
+import Tooltip from 'primevue/tooltip';
+
 // Vue-Router
 import router from '@/plugins/router'
 
@@ -25,4 +29,4 @@ const app = createApp(App)
 
 app.config.performance = true
 
-app.use(router).use(vuetify).use(i18n).use(Vue3Toastify, options).use(pinia).mount('#app')
+app.use(router).use(vuetify).use(i18n).use(Vue3Toastify, options).use(pinia).use(PrimeVue, { themes: { preset: Aura } }).directive('tooltip', Tooltip).mount('#app')

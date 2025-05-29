@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { useI18nUtils } from '@/composables'
-import { TorrentState } from '@/constants/vuetorrent'
+import { DashboardProperty, TorrentState } from '@/constants/vuetorrent'
 import { comparators, getTorrentStateColor } from '@/helpers'
-import { useAppStore, useDashboardStore, useTorrentStore, useVueTorrentStore } from '@/stores'
+import { useAppStore, useDashboardStore, useVueTorrentStore } from '@/stores'
 import { Torrent, Torrent as TorrentType } from '@/types/vuetorrent'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import Header from './Header.vue'
 import TableTorrent from './TableTorrent.vue'
+
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 defineProps<{
   height: number
@@ -26,14 +27,11 @@ defineEmits<{
 const { t, getTorrentStateString } = useI18nUtils()
 const appStore = useAppStore()
 const dashboardStore = useDashboardStore()
-const { sortCriterias } = storeToRefs(useTorrentStore())
 const vuetorrentStore = useVueTorrentStore()
 
+const resizeTable = true;
+
 const torrentProperties = computed(() => vuetorrentStore.tableProperties.filter(ppt => ppt.active).sort((a, b) => comparators.numeric.asc(a.order, b.order)))
-const sortCriteria = computed({
-  get: () => sortCriterias.value[0],
-  set: v => (sortCriterias.value = [{ value: v.value, reverse: v.reverse }])
-})
 
 const headers = computed(() => [
   { key: 'statusIndicator', sortable: false },
@@ -42,24 +40,16 @@ const headers = computed(() => [
   ...torrentProperties.value.filter(ppt => appStore.isFeatureAvailable(ppt.qbitVersion)).map(ppt => ({ title: t(ppt.props.titleKey), key: ppt.sortKey }))
 ])
 
-function onHeaderClick(sortKey: keyof Torrent) {
-  const crit = sortCriteria.value
-  if (crit.value === sortKey) {
-    sortCriteria.value = { value: crit.value, reverse: !crit.reverse }
-  } else {
-    sortCriteria.value = { value: sortKey, reverse: crit.reverse }
-  }
-}
-
 function isTorrentSelected(torrent: TorrentType) {
   return dashboardStore.isTorrentInSelection(torrent.hash)
 }
 
-const getTorrentRowColorClass = (torrent: TorrentType) => [isTorrentSelected(torrent) ? `bg-${getTorrentStateColor(torrent.state)}-darken-3` : '']
+const getTorrentRowColorClass = (torrent: TorrentType) =>
+  'cursor-pointer selected ripple-fix ' + (isTorrentSelected(torrent) ? `bg-${getTorrentStateColor(torrent.state)}-darken-3` : '')
 </script>
 
 <template>
-  <v-data-table
+  <!-- <v-data-table
     id="torrentList"
     density="compact"
     :mobile="false"
@@ -110,7 +100,23 @@ const getTorrentRowColorClass = (torrent: TorrentType) => [isTorrentSelected(tor
         <TableTorrent :torrent="torrent" />
       </tr>
     </template>
-  </v-data-table>
+  </v-data-table> -->
+  <DataTable :value="paginatedTorrents" striped-rows :rowClass="(item: Torrent) => getTorrentRowColorClass(item)" 
+  :resizableColumns="resizeTable" :show-gridlines="resizeTable" columnResizeMode="expand">
+    <Column v-for="header in headers" :key="header.key" :header="header.title" :field="header.key" header-class="px-4" :sortable="!resizeTable">
+      <template #body="torrent">
+        <!-- {{ header.key }} -->
+        <span class="torrent-name text-no-wrap" v-if="header.key === 'name'">{{ torrent.data.name }}</span>
+        <div v-else-if="header.key === 'statusIndicator'" :class="`pa-0 bg-torrent-${TorrentState[torrent.data.state].toLowerCase()}`" 
+        v-tooltip.top="getTorrentStateString(torrent.data.state)" :style="{ width: '12px', position: 'absolute', top: 0, bottom: 0 }">
+          &nbsp;
+        </div>
+        <div v-else class="px-4 py-2">
+          <TableTorrent :property="(header.key as DashboardProperty)" :torrent="torrent.data" />
+        </div>
+      </template>
+    </Column>
+  </DataTable>
 </template>
 
 <style lang="scss">

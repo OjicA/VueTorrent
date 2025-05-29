@@ -5,8 +5,8 @@ defineProps<{ torrent: Torrent; value: (t: Torrent) => number; total?: (t: Torre
 </script>
 
 <template>
-  <td class="text-no-wrap">
+  <span class="text-no-wrap">
     {{ value(torrent) }}
     <span v-if="total"> / {{ total(torrent) }} </span>
-  </td>
+  </span>
 </template>
